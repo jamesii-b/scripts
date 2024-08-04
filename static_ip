@@ -1,0 +1,24 @@
+#!/bin/bash
+
+read -p "Enter the network interface (e.g., eth0): " interface
+read -p "Enter the static IP address: " ip_address
+read -p "Enter the subnet mask (e.g., 255.255.255.0): " netmask
+read -p "Enter the default gateway: " gateway
+read -p "Enter the DNS server (comma-separated, e.g., 8.8.8.8,8.8.4.4): " dns_servers
+
+# Backup existing configuration
+sudo cp /etc/network/interfaces /etc/network/interfaces.bak
+
+# Configure the static IP
+sudo tee /etc/network/interfaces > /dev/null <<EOL
+auto $interface
+iface $interface inet static
+    address $ip_address
+    netmask $netmask
+    gateway $gateway
+    dns-nameservers $(echo $dns_servers | tr ',' ' ')
+EOL
+
+sudo systemctl restart networking
+
+echo "Static IP applied."
