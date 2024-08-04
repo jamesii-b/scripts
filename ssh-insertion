@@ -1,0 +1,34 @@
+#!/bin/bash
+
+get_server_details() {
+    local servers=()
+    while true; do
+        read -p "Enter server IP address (or type 'done' to finish): " ip
+        if [[ "$ip" == "done" ]]; then
+            break
+        fi
+        read -p "Enter username for $ip: " username
+        read -s -p "Enter password for $ip: " password
+        echo
+        servers+=("$ip $username $password")
+    done
+    echo "${servers[@]}"
+}
+
+shutdown_servers() {
+    local servers=("$@")
+    for server in "${servers[@]}"; do
+        IFS=' ' read -r ip username password <<< "$server"
+        echo "Shutting down $ip..."
+        sshpass -p "$password" ssh -o StrictHostKeyChecking=no -t "$username@$ip" "sudo shutdown now"
+        if [[ $? -eq 0 ]]; then
+            echo "Shutdown command sent to $ip."
+        else
+            echo "Failed to send shutdown command to $ip."
+        fi
+    done
+}
+
+# Main script
+servers=($(get_server_details))
+shutdown_servers "${servers[@]}"

@@ -21,10 +21,8 @@ def connect_to_server(ip, username, password, port, command):
         ssh_command = f'sshpass -p {password} ssh -o StrictHostKeyChecking=no -p {port} {username}@{ip} "{command}"'
         print(f"Connecting to {ip} on port {port} and executing command: {command}")
         
-        # Execute the command
         result = subprocess.run(ssh_command, shell=True, text=True, capture_output=True)
         
-        # Check for errors
         if result.returncode == 0:
             print(f"Output from {ip}:\n{result.stdout}")
         else:
